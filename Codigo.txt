@@ -1,0 +1,17 @@
+Natu 10
+Rea 3.14
+2cdf3 = Natu 5
+4fhh1 = Rea 2.718
+Clas
+Pub 3dds2
+Per i Natu 5
+Oui 1lop3 > 0
+Po
+Mentre i < 10
+1gyt4 = Natu 3 + Natu 2
+5mcf1 = Rea 7.5 - Rea 2.5
+3rfv3 = Natu 5 $ Natu 3
+4swa1 = Natu 2 # Natu 4
+12pl3 = Natu 10 += Natu 5
+3h3
+-_-
