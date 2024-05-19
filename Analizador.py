@@ -69,13 +69,13 @@ def es_cadena_texto(palabra):
 # Método que verifica cada línea del código
 def verificar_linea(linea):
     result = []
-    
+
     if linea.startswith('#'):
         result.append((linea, 'Comentario'))
         return result
-    
+
     palabras = linea.split()
-    
+
     for palabra in palabras:
         tipo = 'No Reconocido'
 
@@ -94,9 +94,9 @@ def verificar_linea(linea):
             tipo = 'Número Real'
         elif es_cadena_texto(palabra):
             tipo = 'Cadena de Texto'
-        
+
         result.append((palabra, tipo))
-    
+
     return result
 
 # Método que realiza el análisis léxico
@@ -106,7 +106,7 @@ def analizador_lexico(codigo):
     for linea in codigo.split('\n'):
         linea = linea.strip()
         result = verificar_linea(linea)
-        
+
         for res in result:
             tabla_resultados.add(res)
 
@@ -141,12 +141,18 @@ def seleccionar_archivo(text_widget):
 def crear_automata(token, tipo):
     dot = graphviz.Digraph(comment=f'Autómata para {token}')
 
-    # Estados iniciales y finales
-    dot.node('q0', 'q0', shape='circle')
-    dot.node('q1', 'q1', shape='doublecircle')
+    # Crear nodos y transiciones para cada letra del token
+    previous_state = 'q0'
+    dot.node(previous_state, shape='circle')
 
-    # Transiciones
-    dot.edge('q0', token, 'q1')
+    for i, letra in enumerate(token):
+        current_state = f'q{i + 1}'
+        dot.node(current_state, shape='circle')
+        dot.edge(previous_state, current_state, label=letra)
+        previous_state = current_state
+
+    # Estado final
+    dot.node(previous_state, shape='doublecircle')
 
     filename = f'automata_{token}.gv'
     dot.render(filename, format='png', cleanup=True)
