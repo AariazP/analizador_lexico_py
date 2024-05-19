@@ -48,7 +48,12 @@ def es_palabra_reservada(palabra):
 
 # Método que valida si una cadena es un identificador y que cumpla con las reglas
 def es_identificador(palabra):
-    return palabra[0].isalpha() and palabra[1:].isalnum() and len(palabra) >= 5
+    if len(palabra) >= 5 and palabra[0].isalpha():
+        for char in palabra[1:]:
+            if not char.isalnum():
+                return False
+        return True
+    return False
 
 # Método que valida si un número es natural
 def es_numero_natural(palabra):
@@ -84,16 +89,20 @@ def verificar_linea(linea):
                 tipo = tipo_definido
                 break
 
-        if es_palabra_reservada(palabra):
-            tipo = f'Palabra Reservada: {palabra.upper()}'
-        elif es_identificador(palabra):
-            tipo = 'Identificador'
-        elif es_numero_natural(palabra):
-            tipo = 'Número Natural'
-        elif es_numero_real(palabra):
-            tipo = 'Número Real'
-        elif es_cadena_texto(palabra):
-            tipo = 'Cadena de Texto'
+        if tipo == 'No Reconocido':
+            if es_palabra_reservada(palabra):
+                tipo = f'Palabra Reservada: {palabra.upper()}'
+            elif es_identificador(palabra):
+                tipo = 'Identificador'
+            elif es_numero_natural(palabra):
+                tipo = 'Número Natural'
+            elif es_numero_real(palabra):
+                tipo = 'Número Real'
+            elif es_cadena_texto(palabra):
+                tipo = 'Cadena de Texto'
+
+        if tipo == 'No Reconocido':
+            tipo = f'Token no reconocido: {palabra}'
 
         result.append((palabra, tipo))
 

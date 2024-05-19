@@ -3,7 +3,7 @@ publico clase miClase {
     # Este es un comentario
     para indice = 0 MIENTRAS indice < 10 {
     si indice == 5 {
-        
+       abc! 
     } sino {
 
     }
