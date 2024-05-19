@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
-# Patrón de los simbolos que se van a validar
+# Patrón de los símbolos que se van a validar
 patrones = [
     ('-', 'Operador de Resta'),
     ('+', 'Operador de Suma'),
@@ -31,6 +31,7 @@ patrones = [
     ('PARA', 'Palabra Reservada Para Bucle'),
     ('SI', 'Palabra Reservada Para Decisión'),
     ('SINO', 'Palabra Reservada Para Alternativa'),
+    ('MIENTRAS', 'Palabra Reservada Para Bucle Mientras'),
     ('CLASE', 'Palabra Reservada Para Clase'),
     ('int', 'Palabra Reservada Para Enteros'),
     ('float', 'Palabra Reservada Para Reales'),
@@ -41,7 +42,7 @@ patrones = [
 
 # Método que valida las palabras reservadas del lenguaje
 def es_palabra_reservada(palabra):
-    palabras_reservadas = ['PARA', 'SI', 'SINO', 'CLASE', 'int', 'float', 'String', 'char', 'boolean']
+    palabras_reservadas = ['PARA', 'SI', 'SINO', 'MIENTRAS', 'CLASE', 'int', 'float', 'String', 'char', 'boolean']
     return palabra.upper() in palabras_reservadas
 
 # Método que valida si una cadena es un identificador y que cumpla con las reglas
@@ -67,29 +68,31 @@ def es_cadena_texto(palabra):
 # Método que verifica cada línea del código
 def verificar_linea(linea):
     result = []
+    
+    if linea.startswith('#'):
+        result.append((linea, 'Comentario'))
+        return result
+    
     palabras = linea.split()
     
     for palabra in palabras:
         tipo = 'No Reconocido'
 
-        if palabra.startswith('#'):
-            tipo = 'Comentario'
-        else:
-            for patron, tipo_definido in patrones:
-                if palabra == patron:
-                    tipo = tipo_definido
-                    break
+        for patron, tipo_definido in patrones:
+            if palabra == patron:
+                tipo = tipo_definido
+                break
 
-            if es_palabra_reservada(palabra):
-                tipo = f'Palabra Reservada: {palabra.upper()}'
-            elif es_identificador(palabra):
-                tipo = 'Identificador'
-            elif es_numero_natural(palabra):
-                tipo = 'Número Natural'
-            elif es_numero_real(palabra):
-                tipo = 'Número Real'
-            elif es_cadena_texto(palabra):
-                tipo = 'Cadena de Texto'
+        if es_palabra_reservada(palabra):
+            tipo = f'Palabra Reservada: {palabra.upper()}'
+        elif es_identificador(palabra):
+            tipo = 'Identificador'
+        elif es_numero_natural(palabra):
+            tipo = 'Número Natural'
+        elif es_numero_real(palabra):
+            tipo = 'Número Real'
+        elif es_cadena_texto(palabra):
+            tipo = 'Cadena de Texto'
         
         result.append((palabra, tipo))
     
