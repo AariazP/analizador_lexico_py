@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import graphviz
+import os
 
 # Patrón de los símbolos que se van a validar
 patrones = [
@@ -128,6 +129,7 @@ def leer_codigo(path, text_widget):
 
     resultados = analizador_lexico(codigo)
     mostrar_resultados(resultados, text_widget)
+    generar_automatas(resultados)
 
 # Método que muestra los resultados en un widget de texto
 def mostrar_resultados(resultados, text_widget):
@@ -147,7 +149,7 @@ def seleccionar_archivo(text_widget):
         leer_codigo(path, text_widget)
 
 # Método para crear el gráfico del autómata
-def crear_automata(token, tipo):
+def crear_automata(token):
     dot = graphviz.Digraph(comment=f'Autómata para {token}')
 
     # Crear nodos y transiciones para cada letra del token
@@ -163,40 +165,23 @@ def crear_automata(token, tipo):
     # Estado final
     dot.node(previous_state, shape='doublecircle')
 
-    filename = f'automata_{token}.gv'
+    output_dir = "automatas"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    filename = os.path.join(output_dir, f'automata_{token}.gv')
     dot.render(filename, format='png', cleanup=True)
     return filename + '.png'
 
-# Método para seleccionar el token a graficar
-def seleccionar_token():
-    token = entry_token.get()
-    tipo = obtener_tipo_token(token)
-    if tipo:
-        filepath = crear_automata(token, tipo)
-        messagebox.showinfo("Autómata Generado", f"El autómata para '{token}' ha sido generado y guardado como '{filepath}'.")
-    else:
-        messagebox.showerror("Error", f"Token '{token}' no reconocido.")
-
-# Método que obtiene el tipo de token
-def obtener_tipo_token(token):
-    for patron, tipo_definido in patrones:
-        if token == patron:
-            return tipo_definido
-    if es_palabra_reservada(token):
-        return f'Palabra Reservada: {token.upper()}'
-    if es_identificador(token):
-        return 'Identificador'
-    if es_numero_natural(token):
-        return 'Número Natural'
-    if es_numero_real(token):
-        return 'Número Real'
-    if es_cadena_texto(token):
-        return 'Cadena de Texto'
-    return None
+# Método para generar autómatas para todos los tokens reconocidos
+def generar_automatas(resultados):
+    for token, tipo in resultados:
+        if tipo != 'Token no reconocido: ' + token and tipo != 'Comentario':
+            crear_automata(token)
+    messagebox.showinfo("Completado", "Se han generado los autómatas para los tokens reconocidos.")
 
 # Configuración de la interfaz gráfica
 def configurar_interfaz():
-    global entry_token
     root = tk.Tk()
     root.title("Analizador Léxico")
     root.geometry("800x600")
@@ -209,18 +194,6 @@ def configurar_interfaz():
 
     text_widget = tk.Text(root, wrap=tk.NONE)
     text_widget.pack(expand=True, fill=tk.BOTH)
-
-    frame_token = tk.Frame(root)
-    frame_token.pack(pady=20)
-
-    label_token = tk.Label(frame_token, text="Ingrese el token para generar su autómata:")
-    label_token.pack(side=tk.LEFT, padx=5)
-
-    entry_token = tk.Entry(frame_token)
-    entry_token.pack(side=tk.LEFT, padx=5)
-
-    boton_graficar = tk.Button(frame_token, text="Generar Autómata", command=seleccionar_token)
-    boton_graficar.pack(side=tk.LEFT, padx=5)
 
     root.mainloop()
 
