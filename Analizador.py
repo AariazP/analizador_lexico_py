@@ -73,14 +73,15 @@ def es_cadena_texto(palabra):
     return palabra.startswith('"') and palabra.endswith('"')
 
 # Método que verifica cada línea del código
-def verificar_linea(linea):
+def verificar_linea(linea, numero_linea):
     result = []
 
     if linea.startswith('#'):
-        result.append((linea, 'Comentario'))
+        result.append((linea, 'Comentario', (numero_linea, 1)))
         return result
 
     palabras = linea.split()
+    columna_actual = 1
 
     for palabra in palabras:
         tipo = 'No Reconocido'
@@ -105,7 +106,8 @@ def verificar_linea(linea):
         if tipo == 'No Reconocido':
             tipo = f'Token no reconocido: {palabra}'
 
-        result.append((palabra, tipo))
+        result.append((palabra, tipo, (numero_linea, columna_actual)))
+        columna_actual += len(palabra) + 1
 
     return result
 
@@ -113,9 +115,9 @@ def verificar_linea(linea):
 def analizador_lexico(codigo):
     tabla_resultados = set()
 
-    for linea in codigo.split('\n'):
+    for numero_linea, linea in enumerate(codigo.split('\n'), start=1):
         linea = linea.strip()
-        result = verificar_linea(linea)
+        result = verificar_linea(linea, numero_linea)
 
         for res in result:
             tabla_resultados.add(res)
@@ -134,12 +136,12 @@ def leer_codigo(path, text_widget):
 # Método que muestra los resultados en un widget de texto
 def mostrar_resultados(resultados, text_widget):
     text_widget.delete(1.0, tk.END)  # Limpiar el contenido del widget de texto
-    result_str = "-" * 87 + "\n"
-    result_str += "|{:<40}  | {:<40} |\n".format("Valor", "Tipo")
-    result_str += "-" * 87 + "\n"
+    result_str = "-" * 110 + "\n"
+    result_str += "|{:<40}  | {:<40} | {:<10} |\n".format("Valor", "Tipo", "Posición")
+    result_str += "-" * 110 + "\n"
     for resultado in resultados:
-        result_str += "| {:<40} | {:<40} |\n".format(resultado[0], resultado[1])
-    result_str += "-" * 87 + "\n"
+        result_str += "| {:<40} | {:<40} | {:<10} |\n".format(resultado[0], resultado[1], f"{resultado[2][0]},{resultado[2][1]}")
+    result_str += "-" * 110 + "\n"
     text_widget.insert(tk.END, result_str)  # Insertar el contenido en el widget de texto
 
 # Método para seleccionar el archivo a analizar
@@ -175,7 +177,7 @@ def crear_automata(token):
 
 # Método para generar autómatas para todos los tokens reconocidos
 def generar_automatas(resultados):
-    for token, tipo in resultados:
+    for token, tipo, _ in resultados:
         if tipo != 'Token no reconocido: ' + token and tipo != 'Comentario':
             crear_automata(token)
     messagebox.showinfo("Completado", "Se han generado los autómatas para los tokens reconocidos.")
